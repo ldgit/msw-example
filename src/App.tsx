@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 import logo from "./logo.svg";
 import "./App.css";
 
@@ -26,6 +27,15 @@ interface TodoItem {
 function TodoApp() {
   const [items, setItems] = useState<Array<TodoItem>>([]);
   const [text, setText] = useState("");
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const { data } = await axios.get("/todo");
+      setItems(data.todos);
+    };
+
+    fetchTodos();
+  }, []);
 
   return (
     <div className="container">
