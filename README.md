@@ -1,3 +1,9 @@
+# MSW example
+
+For more info see:
+- https://mswjs.io/
+- https://kentcdodds.com/blog/stop-mocking-fetch
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
