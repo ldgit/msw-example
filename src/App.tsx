@@ -4,7 +4,7 @@ import axios from "axios";
 import logo from "./logo.svg";
 import "./App.css";
 
-function App() {
+export default function App() {
   return (
     <div className="App">
       <header className="App-header">
@@ -17,15 +17,15 @@ function App() {
   );
 }
 
-export default App;
-
 interface TodoItem {
   id: string;
   text: string;
 }
 
 async function fetchTodos() {
-  const { data } = await axios.get("/todo");
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BACKEND_SERVER}/todo`
+  );
   return data.todos;
 }
 
@@ -67,7 +67,7 @@ function TodoApp() {
       id: uuidv4(),
     };
 
-    await axios.post("/todo", newItem);
+    await axios.post(`${process.env.REACT_APP_BACKEND_SERVER}/todo`, newItem);
     setItems(await fetchTodos());
     setText("");
   }

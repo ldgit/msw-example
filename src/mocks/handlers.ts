@@ -21,11 +21,11 @@ const todos: any = [
 ];
 
 export const handlers = [
-  rest.get("/todo", (req, res, ctx) => {
+  rest.get(`${process.env.REACT_APP_BACKEND_SERVER}/todo`, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ todos }));
   }),
 
-  rest.post("/todo", (req, res, ctx) => {
+  rest.post(`${process.env.REACT_APP_BACKEND_SERVER}/todo`, (req, res, ctx) => {
     todos.push(req.body);
     return res(ctx.status(200), ctx.json({ success: true, id: 1 }));
   }),
