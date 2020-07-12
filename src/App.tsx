@@ -22,11 +22,20 @@ interface TodoItem {
   text: string;
 }
 
+interface TodoListProps {
+  items: Array<TodoItem>;
+  onDelete: (id: string) => void;
+}
+
 async function fetchTodos() {
   const { data } = await axios.get(
     `${process.env.REACT_APP_BACKEND_SERVER}/todo`
   );
   return data.todos;
+}
+
+async function deleteTodo(id: string) {
+  await axios.delete(`${process.env.REACT_APP_BACKEND_SERVER}/todo/${id}`);
 }
 
 function TodoApp() {
@@ -41,10 +50,15 @@ function TodoApp() {
     fetchAndSetTodos();
   }, []);
 
+  async function handleDeleteTodo(id: string) {
+    await deleteTodo(id);
+    setItems(await fetchTodos());
+  }
+
   return (
     <div className="container">
       <h3>Todo App using Mock Service Worker</h3>
-      <TodoList items={items} />
+      <TodoList items={items} onDelete={handleDeleteTodo} />
       <form onSubmit={handleSubmit}>
         <label htmlFor="new-todo">What needs to be done?</label>
         <input id="new-todo" onChange={handleChange} value={text} />
@@ -73,11 +87,16 @@ function TodoApp() {
   }
 }
 
-function TodoList({ items }: { items: Array<TodoItem> }) {
+function TodoList({ items, onDelete }: TodoListProps) {
   return (
     <ul>
       {items.map((item) => (
-        <li key={item.id}>{item.text}</li>
+        <li key={item.id}>
+          {item.text}
+          <button type="button" onClick={onDelete.bind(null, item.id)}>
+            X
+          </button>
+        </li>
       ))}
     </ul>
   );

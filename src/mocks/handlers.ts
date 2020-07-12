@@ -1,7 +1,7 @@
 import { rest } from "msw";
 import { v4 } from "uuid";
 
-const todos: any = [
+let todos: Array<any> = [
   {
     text: "Prepare basic todo application",
     id: v4(),
@@ -26,7 +26,17 @@ export const handlers = [
   }),
 
   rest.post(`${process.env.REACT_APP_BACKEND_SERVER}/todo`, (req, res, ctx) => {
-    todos.push(req.body);
-    return res(ctx.status(200), ctx.json({ success: true, id: 1 }));
+    todos = [...todos, req.body];
+    return res(ctx.status(200), ctx.json({ success: true }));
   }),
+
+  rest.delete(
+    `${process.env.REACT_APP_BACKEND_SERVER}/todo/:id`,
+    (req, res, ctx) => {
+      todos = todos.filter((todo) => {
+        return todo.id !== req.params.id;
+      });
+      return res(ctx.status(200), ctx.json({ success: true }));
+    }
+  ),
 ];
