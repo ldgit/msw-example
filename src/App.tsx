@@ -24,17 +24,21 @@ interface TodoItem {
   text: string;
 }
 
+async function fetchTodos() {
+  const { data } = await axios.get("/todo");
+  return data.todos;
+}
+
 function TodoApp() {
   const [items, setItems] = useState<Array<TodoItem>>([]);
   const [text, setText] = useState("");
 
   useEffect(() => {
-    const fetchTodos = async () => {
-      const { data } = await axios.get("/todo");
-      setItems(data.todos);
+    const fetchAndSetTodos = async () => {
+      setItems(await fetchTodos());
     };
 
-    fetchTodos();
+    fetchAndSetTodos();
   }, []);
 
   return (
@@ -53,7 +57,7 @@ function TodoApp() {
     setText(e.target.value);
   }
 
-  function handleSubmit(e: any) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     if (text.length === 0) {
       return;
@@ -62,7 +66,9 @@ function TodoApp() {
       text: text,
       id: uuidv4(),
     };
-    setItems((items) => [...items, newItem]);
+
+    await axios.post("/todo", newItem);
+    setItems(await fetchTodos());
     setText("");
   }
 }

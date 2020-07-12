@@ -3,11 +3,11 @@ import { v4 } from "uuid";
 
 const todos: any = [
   {
-    text: "Pripremi todo aplikaciju",
+    text: "Prepare basic todo application",
     id: v4(),
   },
   {
-    text: "Postavi mock server",
+    text: "Setup mock server",
     id: v4(),
   },
   {
@@ -25,7 +25,8 @@ export const handlers = [
     return res(ctx.status(200), ctx.json({ todos }));
   }),
 
-  rest.post("/todo", (req, res, ctx) =>
-    res(ctx.status(200), ctx.json({ success: true, id: 1 }))
-  ),
+  rest.post("/todo", (req, res, ctx) => {
+    todos.push(req.body);
+    return res(ctx.status(200), ctx.json({ success: true, id: 1 }));
+  }),
 ];
