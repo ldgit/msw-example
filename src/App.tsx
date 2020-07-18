@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import logo from "./logo.svg";
 import "./App.css";
 
@@ -23,15 +23,20 @@ interface TodoItem {
 }
 
 interface TodoListProps {
-  items: Array<TodoItem>;
+  items: Array<TodoItem> | number;
   onDelete: (id: string) => void;
 }
 
-async function fetchTodos() {
-  const { data } = await axios.get(
-    `${process.env.REACT_APP_BACKEND_SERVER}/todo`
-  );
-  return data.todos;
+async function fetchTodos(): Promise<Array<TodoItem> | number> {
+  try {
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_BACKEND_SERVER}/todo`
+    );
+    return data.todos;
+  } catch (error) {
+    const response = (error as AxiosError).response;
+    return response ? response.status : 500;
+  }
 }
 
 async function deleteTodo(id: string) {
@@ -39,15 +44,23 @@ async function deleteTodo(id: string) {
 }
 
 function TodoApp() {
-  const [items, setItems] = useState<Array<TodoItem>>([]);
+  const [items, setItems] = useState<Array<TodoItem> | number>([]);
   const [text, setText] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
     const fetchAndSetTodos = async () => {
-      setItems(await fetchTodos());
+      const todos = await fetchTodos();
+      if (isMounted) {
+        setItems(todos);
+      }
     };
 
     fetchAndSetTodos();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   async function handleDeleteTodo(id: string) {
@@ -62,7 +75,7 @@ function TodoApp() {
       <form onSubmit={handleSubmit}>
         <label htmlFor="new-todo">What needs to be done?</label>
         <input id="new-todo" onChange={handleChange} value={text} />
-        <button>Add #{items.length + 1}</button>
+        <button>Add</button>
       </form>
     </div>
   );
@@ -88,6 +101,16 @@ function TodoApp() {
 }
 
 function TodoList({ items, onDelete }: TodoListProps) {
+  if (typeof items === "number") {
+    return items === 404 ? (
+      <span style={{ color: "red" }}>Error: todo list not found</span>
+    ) : (
+      <span style={{ color: "red" }}>
+        Unknown error occured, please try later
+      </span>
+    );
+  }
+
   return (
     <ul>
       {items.map((item) => (
