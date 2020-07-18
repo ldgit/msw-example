@@ -16,69 +16,75 @@ export default function App() {
     </div>
   );
 }
-
 interface TodoItem {
   id: string;
   text: string;
 }
 
 interface TodoListProps {
-  items: Array<TodoItem> | number;
+  items: Array<TodoItem>;
   onDelete: (id: string) => void;
 }
 
-async function fetchTodos(): Promise<Array<TodoItem> | number> {
-  try {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_BACKEND_SERVER}/todo`
-    );
-    return data.todos;
-  } catch (error) {
-    const response = (error as AxiosError).response;
-    return response ? response.status : 500;
-  }
+async function fetchTodos(): Promise<Array<TodoItem>> {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BACKEND_SERVER}/todo`
+  );
+  return data.todos;
 }
 
 async function deleteTodo(id: string) {
   await axios.delete(`${process.env.REACT_APP_BACKEND_SERVER}/todo/${id}`);
 }
 
+function ErrorMessage({ code }: { code: number }) {
+  return (
+    <span style={{ color: "red" }}>
+      {code === 404
+        ? "Error: todo list not found"
+        : "Unknown error occured, please try later"}
+    </span>
+  );
+}
+
+function TodoList({ items, onDelete }: TodoListProps) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>
+          {item.text}
+          <button type="button" onClick={onDelete.bind(null, item.id)}>
+            X
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function TodoApp() {
-  const [items, setItems] = useState<Array<TodoItem> | number>([]);
+  const [items, setItems] = useState<Array<TodoItem>>([]);
   const [text, setText] = useState("");
+  const [errorCode, setErrorCode] = useState<null | number>(null);
 
   useEffect(() => {
-    let isMounted = true;
     const fetchAndSetTodos = async () => {
-      const todos = await fetchTodos();
-      if (isMounted) {
+      try {
+        const todos = await fetchTodos();
         setItems(todos);
+      } catch (error) {
+        const response = (error as AxiosError).response;
+        setErrorCode(response ? response.status : 500);
       }
     };
 
     fetchAndSetTodos();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   async function handleDeleteTodo(id: string) {
     await deleteTodo(id);
     setItems(await fetchTodos());
   }
-
-  return (
-    <div className="container">
-      <h3>Todo App using Mock Service Worker</h3>
-      <TodoList items={items} onDelete={handleDeleteTodo} />
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="new-todo">What needs to be done?</label>
-        <input id="new-todo" onChange={handleChange} value={text} />
-        <button>Add</button>
-      </form>
-    </div>
-  );
 
   function handleChange(e: any) {
     setText(e.target.value);
@@ -98,29 +104,20 @@ function TodoApp() {
     setItems(await fetchTodos());
     setText("");
   }
-}
 
-function TodoList({ items, onDelete }: TodoListProps) {
-  if (typeof items === "number") {
-    return items === 404 ? (
-      <span style={{ color: "red" }}>Error: todo list not found</span>
-    ) : (
-      <span style={{ color: "red" }}>
-        Unknown error occured, please try later
-      </span>
-    );
+  if (errorCode) {
+    return <ErrorMessage code={errorCode} />;
   }
 
   return (
-    <ul>
-      {items.map((item) => (
-        <li key={item.id}>
-          {item.text}
-          <button type="button" onClick={onDelete.bind(null, item.id)}>
-            X
-          </button>
-        </li>
-      ))}
-    </ul>
+    <div className="container">
+      <h3>Todo App using Mock Service Worker</h3>
+      <TodoList items={items} onDelete={handleDeleteTodo} />
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="new-todo">What needs to be done?</label>
+        <input id="new-todo" onChange={handleChange} value={text} />
+        <button>Add</button>
+      </form>
+    </div>
   );
 }
