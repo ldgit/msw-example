@@ -1,7 +1,7 @@
 import React from "react";
-import { render, waitFor, act } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import App from "./App";
-import { server, rest } from "./setupMockServer";
+import { server, rest } from "./mocks/testServer";
 
 describe("mock service worker example", () => {
   it("renders initial todo items", async () => {
