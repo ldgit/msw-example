@@ -90,7 +90,8 @@
     ]
   },
   "devDependencies": {
-    "msw": "^0.19.5"
+    "msw": "^0.19.5",
+    "nock": "^13.0.2"
   },
   "jest": {
     "roots": [
