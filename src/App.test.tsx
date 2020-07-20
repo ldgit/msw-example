@@ -1,5 +1,5 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, fireEvent } from "@testing-library/react";
 import App from "./App";
 import { server, rest } from "./mocks/testServer";
 
@@ -36,4 +36,19 @@ describe("mock service worker example", () => {
       });
     }
   );
+
+  it("should delete todo when user clicks on X button", async () => {
+    const { findByText, findAllByText, queryByText, getAllByTestId } = render(<App />);
+
+    // Deletes "Prepare basic todo application" todo item
+    fireEvent.click((await findAllByText(/X/))[0]);
+
+    await waitFor(() => {
+      expect(getAllByTestId("todoItem")).toHaveLength(3);
+    });
+    expect(queryByText(/Prepare basic todo application/i)).not.toBeInTheDocument();
+    expect(await findByText(/Setup mock server/i)).toBeInTheDocument();
+    expect(await findByText("...")).toBeInTheDocument();
+    expect(await findByText(/Profit!/i)).toBeInTheDocument();
+  });
 });

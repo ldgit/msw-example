@@ -28,7 +28,7 @@ function TodoList({ items, onDelete }: TodoListProps) {
   return (
     <ul>
       {items.map((item) => (
-        <li key={item.id}>
+        <li key={item.id} data-testid="todoItem">
           {item.text}
           <button type="button" onClick={onDelete.bind(null, item.id)}>
             X
