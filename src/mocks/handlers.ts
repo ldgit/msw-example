@@ -39,4 +39,9 @@ export const handlers = [
       return res(ctx.status(200), ctx.json({ success: true }));
     }
   ),
+
+  rest.get(`${process.env.REACT_APP_BACKEND_SERVER}/*`, (req, res, ctx) => {
+    console.warn(`Request handler missing for ${req.url.toString()}`);
+    return res(ctx.status(500));
+  }),
 ];
