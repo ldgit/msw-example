@@ -6,7 +6,7 @@ import App from "./App";
 
 jest.mock("axios");
 
-describe("request mocking using nock", () => {
+describe("request mocking using only jest mock tools", () => {
   beforeEach(() => {
     const mockedAxios = axios as jest.Mocked<typeof axios>;
     mockedAxios.get.mockImplementation(() =>
